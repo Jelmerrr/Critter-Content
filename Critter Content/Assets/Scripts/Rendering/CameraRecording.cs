@@ -3,73 +3,84 @@ using System.Collections.Generic;
 using UnityEngine;
 public class CameraRecording : MonoBehaviour
 {
-    public bool isRecording = false;
-    public bool isPlaying = false;
+    private bool isRecording = false; //Bools to store states (might change when video recorder system is properly in place)
+    private bool isPlaying = false;
 
-    public Camera recordingCamera;
-    public Camera playbackCamera;
+    [SerializeField]
+    private Camera recordingCamera; //Camera used to store positions
+    [SerializeField]
+    private Camera playbackCamera; //Camera used to repeat positions stored
 
-    List<Vector3> cameraLocations;
-    List<Quaternion> cameraRotations;
-    //This could be optimized and put into 1 list through a class but I'm too lazy and can't be bothered.
+    private List<RecordingPoints> cameraLocations = new List<RecordingPoints>(); //List of camera locations in a given recording
+    public List<Recording> recordings = new List<Recording>(); //List of recordings
 
+    public int wantedRecording = 0; //placeholder untill newer systems are implemented (video editor)
 
-    //TODO: Split recordings into different list for later use
-    //TODO: Rewrite the playback code to account for different recordings
-    //TODO: Add a better failsafe to prevent multiple playbacks from happening at the same time (this breaks a lot of stuff)
-    //TODO: Add an option for recordings to looOOooOp
-
-
-    void Start()
-    {
-        cameraLocations = new List<Vector3>();
-        cameraRotations = new List<Quaternion>();
-    }
-
-    void Update()
+    void Update() //Stuff in here is placeholder untill newer systems are implemented (video recorder and video editor)
     {
         if(Input.GetKeyDown(KeyCode.R))
         {
+            cameraLocations.Clear();
             isRecording = true;
         }
         if (Input.GetKeyUp(KeyCode.R))
         {
             isRecording = false;
+            SaveRecording();
+        }
+        if(Input.GetKeyDown(KeyCode.T))
+        {
+            PlayRecording(wantedRecording);
         }
     }
 
-    private void FixedUpdate()
+    private void FixedUpdate() //Stuff in here is placeholder untill newer systems are implemented (video recorder)
     {
         if (isRecording)
         {
             RecordCamera();
         }
+    }
 
-        if(isPlaying)
+    private void RecordCamera() //Stores current camera position and rotation
+    {
+        RecordingPoints newRecordingPoint = new RecordingPoints(recordingCamera.transform.position, recordingCamera.transform.rotation);
+        cameraLocations.Add(newRecordingPoint);
+    }
+
+    private void SaveRecording() //Stores a list of recorded camera positions as a recording
+    {
+        string recordingName;
+        recordingName = "Recording" + recordings.Count;
+        Recording newRecording = new Recording(new List<RecordingPoints>(cameraLocations), recordingName);
+        recordings.Add(newRecording);
+        Debug.Log("Recording saved as: " + recordingName);
+    }
+
+    public void PlayRecording(int recordingID) //Plays back a given recording 
+    {
+        if(isPlaying == false)
         {
-            PlayRecording();
+            StartCoroutine(RenderVideo(recordingID));
         }
     }
 
-    private void PlayRecording()
+    IEnumerator RenderVideo(int recordingIndex)  //Coroutine that updates camera positions based on stored recording
     {
-        isPlaying = false;
-        StartCoroutine(RenderFrame());
-    }
-
-    private void RecordCamera()
-    {
-        cameraLocations.Add(recordingCamera.transform.position);
-        cameraRotations.Add(recordingCamera.transform.rotation);
-    }
-
-    IEnumerator RenderFrame() //Fixedupdate is 50fps so to account for that this coroutine exists that only simulates positions on a 50fps basis.
-    {
-        for (int i = 0; i < cameraLocations.Count; i++)
+        //TODO: Might be cool to intentionally make this lower fps (25) too simulate older cameras
+        isPlaying = true;
+        for (int i = 0; i < recordings[recordingIndex].frames.Count; i++)
         {
-            playbackCamera.transform.position = cameraLocations[i];
-            playbackCamera.transform.rotation = cameraRotations[i];
+            RecordingPoints recordingPoints = recordings[recordingIndex].frames[i];
+            playbackCamera.transform.position = recordingPoints.position;
+            playbackCamera.transform.rotation = recordingPoints.rotation;
+            if(i == recordings[recordingIndex].frames.Count - 1)
+            {
+                isPlaying = false;
+                StopCoroutine(RenderVideo(recordingIndex));
+            }
             yield return new WaitForSeconds(.02f);
+            //Fixedupdate is 50fps so to account for that this coroutine simulates positions on a 50fps basis
         }
     }
 }
