@@ -1867,7 +1867,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 10000
-  field of view: 80
+  field of view: 70
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -2693,7 +2693,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6871787962804932123, guid: ebd6885508614e448a2625afe92f3be1, type: 3}
       propertyPath: movementSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6871787962804932123, guid: ebd6885508614e448a2625afe92f3be1, type: 3}
       propertyPath: groundLayer.m_Bits
