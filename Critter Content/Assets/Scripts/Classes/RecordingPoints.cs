@@ -9,6 +9,5 @@ public class RecordingPoints //Handles camera position and rotation
     {
         position = _position;
         rotation = _rotation;
-    }
-    
+    } 
 }
