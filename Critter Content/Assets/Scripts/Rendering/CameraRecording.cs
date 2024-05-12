@@ -4,7 +4,7 @@ using UnityEngine;
 public class CameraRecording : MonoBehaviour
 {
     private bool isRecording = false; //Bools to store states (might change when video recorder system is properly in place)
-    private bool isPlaying = false;
+    public bool isPlaying = false;
 
     [SerializeField]
     private Camera recordingCamera; //Camera used to store positions
